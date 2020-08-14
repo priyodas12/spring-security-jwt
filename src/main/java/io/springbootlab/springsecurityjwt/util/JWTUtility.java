@@ -19,24 +19,28 @@ public class JWTUtility {
     long nowMillis=System.currentTimeMillis();
     long ttMillis=System.currentTimeMillis()+1000*60*60*10;
 
+    //extract username
     public String extractUsername(String token){
         return extractClaim(token,Claims::getSubject);
     }
 
+    //extract expiration date
     public Date extractExpiration(String token){
         return extractClaim(token,Claims::getExpiration);
     }
 
-    //
+    //claim details
     public <T> T extractClaim(String token, Function<Claims,T> claimsResolver) {
         final Claims claims= extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    // all claim details
     private Claims extractAllClaims(String token) {
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
+    // validation of token
     public Boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
     }
@@ -59,6 +63,7 @@ public class JWTUtility {
                 .compact();
     }
 
+    //validate token
     public Boolean validateToken(String token, UserDetails userDetails){
         final String username=extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
